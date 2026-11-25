@@ -6,6 +6,7 @@ import Player from "../entities/Player.ts";
 import GroupUtils from "../utils/GroupUtils.ts";
 import GameConstants from "../GameConstants.ts";
 import RegistryConstants from "../RegistryConstants.ts";
+import { EnemyShipsData } from "../gameData/EnemyShipsData.ts";
 
 export default class EntityManager extends Plugins.ScenePlugin {
     public static readonly PLUGIN_KEY: string = 'EntityManager';
@@ -25,6 +26,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     private _playerBullets: Physics.Arcade.Group;
     private _enemies: Physics.Arcade.Group;
     private _enemyBullets: Physics.Arcade.Group;
+    private _specialEnemy: Physics.Arcade.Group;
 
     constructor(scene: Scene, pluginManager: Plugins.PluginManager) {
         super(scene, pluginManager, EntityManager.PLUGIN_KEY);
@@ -53,15 +55,25 @@ export default class EntityManager extends Plugins.ScenePlugin {
     }
 
     public initEnemies(): Physics.Arcade.Group {
+        const shipsData = this.scene!.cache.json.get('specialEnemy') as EnemyShipsData | undefined;
         this._enemyBullets = this.scene!.physics.add.group(this.bulletGroupConfig);
         GroupUtils.populate(256, this._enemyBullets);
 
         this._enemies = this.scene!.physics.add.group({
             classType: Enemy,
             defaultKey: 'sprites',
-            defaultFrame: 'ufoRed',
+            defaultFrame: shipsData?.enemies?.texture ?? 'ufoRed',
             createCallback: (enemy) => {
-                (enemy as Enemy).init(this._enemyBullets);
+                (enemy as Enemy).init(this._enemyBullets, shipsData?.enemies);
+            }
+        });
+
+        this._specialEnemy = this.scene!.physics.add.group({
+            classType: Enemy,
+            defaultKey: 'sprites',
+            defaultFrame: shipsData?.specialEnemy?.texture ?? 'merluche',
+            createCallback: (enemy) => {
+                (enemy as Enemy).init(this._enemyBullets, shipsData?.specialEnemy);
             }
         });
 
@@ -80,6 +92,13 @@ export default class EntityManager extends Plugins.ScenePlugin {
 
     public initGroupCollisions() {
         this.scene!.physics.add.overlap(this._playerBullets, this._enemies, (bullet, enemy) => {
+            this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
+
+            (bullet as Bullet).disable();
+            (enemy as Enemy).getComponent(Health)?.damage((bullet as Bullet).damage);
+        });
+
+        this.scene!.physics.add.overlap(this._playerBullets, this._specialEnemy, (bullet, enemy) => {
             this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
 
             (bullet as Bullet).disable();
@@ -105,22 +124,37 @@ export default class EntityManager extends Plugins.ScenePlugin {
             this.scene?.cameras.main.shake(100, 0.03);
         });
 
+        this.scene!.physics.add.overlap(this._player, this._specialEnemy, (player, enemy) => {
+            this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
+
+            const enemyHealth = (enemy as Enemy).getComponent(Health);
+            enemyHealth?.damage(enemyHealth?.max);
+
+            const playerHealth = (player as Player).getComponent(Health);
+            playerHealth?.damage(1);
+
+            this.scene?.cameras.main.shake(100, 0.03);
+        });
+
         console.log("[EntityManager] Group collisions initialized");
     }
 
     private spawnEnemy() {
-        if (this._enemies.countActive(true) >= 5) {
-            return;
+        if (this._enemies.countActive(true) < 5) {
+        const enemy = this._enemies.get() as Enemy | null;
+        if (enemy) {
+            enemy.enable(Phaser.Math.Between(64, this.scene!.cameras.main.width - 64), 0);
+            this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
         }
+    }
 
-        const enemy = this._enemies.get() as Enemy;
-        if (!enemy) {
-            return;
+    if (this._specialEnemy.countActive(true) < 1) {
+        const specialEnemy = this._specialEnemy.get() as Enemy | null;
+        if (specialEnemy) {
+            specialEnemy.enable(Phaser.Math.Between(64, this.scene!.cameras.main.width - 64), 0);
+            this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, specialEnemy);
         }
-
-        enemy.enable(Phaser.Math.Between(64, this.scene!.cameras.main.width - 64), 0);
-
-        this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
+    }
 
         console.log("[EntityManager] Enemy spawned");
     }

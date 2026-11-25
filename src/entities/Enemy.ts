@@ -1,4 +1,5 @@
-import type {BulletData} from '../gameData/BulletData.ts';
+import type { BulletData } from '../gameData/BulletData.ts';
+import type { EnemyShipsData, EnemyShipData } from '../gameData/EnemyShipsData.ts';
 import Entity from './Entity.ts';
 import Health from "../components/Health.ts";
 import Movement from "../components/Movement.ts";
@@ -15,64 +16,94 @@ export default class Enemy extends Entity {
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
     private _shootTimer: Phaser.Time.TimerEvent;
 
-    public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(1, this));
-        this.addComponent(new Movement(0.2));
-        this.addComponent(new Weapon(bulletsGroup, this._bulletData));
+    public init(bulletsGroup: Phaser.Physics.Arcade.Group, shipData?: EnemyShipData): void {
+        const enemyShipsData = this.scene.cache.json.get('specialEnemy') as EnemyShipsData | undefined;
+        const data: EnemyShipData | undefined = shipData ?? enemyShipsData?.enemies;
 
-        // Listen once per enemy, not on every enable(): pooled enemies are reused many times
-        const health = this.getComponent(Health);
-        health?.on(Health.CHANGE_EVENT, () => {
-            this.setTintFill(0xffffff);
+        if (!data) {
+            console.warn('[Enemy] Missing shipData and no "specialEnemy" JSON found in cache.');
+            return;
+        }
 
-            if (health?.current == 0)
-            {
-                this.disableBody();
-            }
-
-            this.scene.time.delayedCall(50, () => {
-                this.clearTint();
-
-                if (health?.current == 0)
-                {
-                    this.disable();
-                }
-            });
-        });
+        const spritesTexture = this.scene.textures.get('sprites');
+        if (spritesTexture && spritesTexture.has(data.texture)) {
+            this.setTexture('sprites', data.texture);
+        } else if (this.scene.textures.exists(data.texture)) {
+            this.setTexture(data.texture);
+        } else {
+            console.warn(`[Enemy] Texture "${data.texture}" introuvable dans "sprites" ou en texture directe.`);
+        }
 
         this.angle = 90;
 
+        this.addComponent(new Health(data.body.maxHealth ?? 1, this));
+        this.addComponent(new Movement(data.movementSpeed));
+        this.addComponent(new Weapon(bulletsGroup, { ...this._bulletData }));
+
+        this.arcadeBody.setCircle(
+            data.body.radius,
+            data.body.offsetX,
+            data.body.offsetY
+        );
+
+        const health = this.getComponent(Health);
+        if (health) {
+            health.removeAllListeners(Health.CHANGE_EVENT);
+            health.on(Health.CHANGE_EVENT, () => {
+                this.setTintFill(0xffffff);
+
+                if (health.current === 0) {
+                    this.disableBody();
+                }
+
+                this.scene.time.delayedCall(50, () => {
+                    if (!this.scene || !this.active) {
+                        return;
+                    }
+
+                    this.clearTint();
+
+                    if (health.current === 0) {
+                        this.disable();
+                    }
+                });
+            });
+        }
+
+        this._shootTimer?.remove(false);
         this._shootTimerConfig = {
             delay: Phaser.Math.Between(2000, 3000),
             callback: this.shoot,
             callbackScope: this,
-            loop: true
+            loop: true,
+            paused: true
         };
         this._shootTimer = this.scene.time.addEvent(this._shootTimerConfig);
 
-        // Create animation when enemy is about to shoot in the global animation manager
-        if (!this.scene.anims.exists('ufoShoot')) {
+        if (data.texture === 'ufoRed' && !this.scene.anims.exists('ufoShoot')) {
             this.scene.anims.create({
                 key: 'ufoShoot',
                 frames: [
-                    {key: 'sprites', frame: 'ufoRed'},
-                    {key: 'sprites', frame: 'ufoRed-shoot0'},
-                    {key: 'sprites', frame: 'ufoRed-shoot1'}
+                    { key: 'sprites', frame: 'ufoRed' },
+                    { key: 'sprites', frame: 'ufoRed-shoot0' },
+                    { key: 'sprites', frame: 'ufoRed-shoot1' }
                 ],
-                frameRate: 4,
+                frameRate: 4
             });
         }
-
-        this.arcadeBody.setCircle(this.displayWidth / 2);
     }
 
     public enable(x: number, y: number) {
         this.enableBody(true, x, y - this.displayHeight, true, true);
-        this._shootTimer.reset(this._shootTimerConfig);
 
         // Restore health, in case the enemy is reused from the pool, without emitting events
         const health = this.getComponent(Health);
         health?.heal(health!.max, false);
+
+        if (this._shootTimer && this._shootTimerConfig) {
+            this._shootTimer.reset({ ...this._shootTimerConfig, paused: false });
+            this._shootTimer.paused = false;
+        }
     }
 
     public disable() {
@@ -80,18 +111,28 @@ export default class Enemy extends Entity {
         this.removeAllListeners(Phaser.Animations.Events.ANIMATION_COMPLETE);
 
         this.disableBody(true, true);
-        this._shootTimer.paused = true;
+        if (this._shootTimer) {
+            this._shootTimer.paused = true;
+        }
+        
     }
 
     private shoot() {
+    const fire = () => {
+        this.getComponent(Weapon)?.shoot(this);
+        this.scene.sound.play('sfx_laser2');
+    };
+
+    if (this.scene.anims.exists('ufoShoot') && this.frame.name === 'ufoRed') {
         this.play('ufoShoot');
         this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
             this.setTexture('sprites', 'ufoRed');
-
-            this.getComponent(Weapon)?.shoot(this);
-            this.scene.sound.play('sfx_laser2');
+            fire();
         });
+    } else {
+        fire();
     }
+}
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
         super.preUpdate(timeSinceLaunch, deltaTime)
