@@ -7,9 +7,9 @@ import Weapon from "../components/Weapon.ts";
 
 export default class Enemy extends Entity {
     private readonly _bulletData: BulletData = {
-        width: 12,
-        height: 12,
-        color: 0xf25f5c,
+        width: 20,
+        height: 20,
+        color: 0x00e676,
         speed: 512,
         damage: 1,
     };
@@ -116,6 +116,7 @@ export default class Enemy extends Entity {
     }
 
     private shoot() {
+        console.log("shoot");
         const fire = () => {
             const weapon = this.getComponent(Weapon);
             if (this._isSpecialEnemy) {
