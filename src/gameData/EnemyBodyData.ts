@@ -3,4 +3,6 @@ export type EnemyBodyData = {
     offsetX: number;
     offsetY: number;
     maxHealth?: integer;
+    numberOfBullets?: integer;
+    shotRadius?: integer;
 }
