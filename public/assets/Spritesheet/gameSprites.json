@@ -4,11 +4,32 @@
 			"image": "gameSprites.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 174,
-				"h": 416
+				"w": 190,
+				"h": 540
 			},
 			"scale": 1,
 			"frames": [
+				{
+					"filename": "merluche",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 88,
+						"h": 120
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 88,
+						"h": 120
+					},
+					"frame": {
+						"x": 2,
+						"y": 2,
+						"w": 88,
+						"h": 120
+					}
+				},
 				{
 					"filename": "playerShip2_blue",
 					"rotated": false,
@@ -25,7 +46,7 @@
 					},
 					"frame": {
 						"x": 2,
-						"y": 2,
+						"y": 126,
 						"w": 75,
 						"h": 112
 					}
@@ -46,7 +67,7 @@
 					},
 					"frame": {
 						"x": 2,
-						"y": 118,
+						"y": 242,
 						"w": 75,
 						"h": 99
 					}
@@ -67,7 +88,7 @@
 					},
 					"frame": {
 						"x": 2,
-						"y": 221,
+						"y": 345,
 						"w": 75,
 						"h": 98
 					}
@@ -88,7 +109,7 @@
 					},
 					"frame": {
 						"x": 2,
-						"y": 323,
+						"y": 447,
 						"w": 91,
 						"h": 91
 					}
@@ -109,7 +130,7 @@
 					},
 					"frame": {
 						"x": 81,
-						"y": 2,
+						"y": 126,
 						"w": 91,
 						"h": 91
 					}
@@ -129,31 +150,10 @@
 						"h": 91
 					},
 					"frame": {
-						"x": 81,
-						"y": 97,
+						"x": 97,
+						"y": 2,
 						"w": 91,
 						"h": 91
-					}
-				},
-				{
-					"filename": "playerLife1_blue",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 33,
-						"h": 26
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 33,
-						"h": 26
-					},
-					"frame": {
-						"x": 81,
-						"y": 192,
-						"w": 33,
-						"h": 26
 					}
 				},
 				{
@@ -171,8 +171,8 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 222,
+						"x": 97,
+						"y": 97,
 						"w": 25,
 						"h": 24
 					}
@@ -192,8 +192,8 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 250,
+						"x": 126,
+						"y": 97,
 						"w": 25,
 						"h": 24
 					}
@@ -213,10 +213,31 @@
 						"h": 24
 					},
 					"frame": {
-						"x": 81,
-						"y": 278,
+						"x": 155,
+						"y": 97,
 						"w": 24,
 						"h": 24
+					}
+				},
+				{
+					"filename": "playerLife1_blue",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 33,
+						"h": 26
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 33,
+						"h": 26
+					},
+					"frame": {
+						"x": 81,
+						"y": 221,
+						"w": 33,
+						"h": 26
 					}
 				}
 			]

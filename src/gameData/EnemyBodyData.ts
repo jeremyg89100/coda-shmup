@@ -1,0 +1,6 @@
+export type EnemyBodyData = {
+    radius: number;
+    offsetX: number;
+    offsetY: number;
+    maxHealth?: integer;
+}

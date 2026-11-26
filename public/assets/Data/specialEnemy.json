@@ -1,0 +1,22 @@
+{
+  "enemies": {
+    "movementSpeed": 0.2,
+    "texture": "ufoRed",
+    "body": {
+      "radius": 42,
+      "offsetX": -4,
+      "offsetY": 16,
+      "maxHealth": 1
+    }
+  },
+  "specialEnemy": {
+    "movementSpeed": 0.3,
+    "texture": "merluche",
+    "body": {
+      "radius": 42,
+      "offsetX": -4,
+      "offsetY": 16,
+      "maxHealth": 3
+    }
+  }
+}
