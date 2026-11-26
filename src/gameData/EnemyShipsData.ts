@@ -6,6 +6,7 @@ export type EnemyShipsData = {
 
 export type EnemyShipData = {
     movementSpeed: number;
+    spawnRate?: number;
     texture: string;
     body: EnemyBodyData;
 }

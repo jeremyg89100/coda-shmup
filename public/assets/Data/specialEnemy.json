@@ -18,7 +18,8 @@
       "offsetY": 16,
       "maxHealth": 2,
       "numberOfBullets": 5,
-      "shotRadius": 90
+      "shotRadius": 90,
+      "spawnRate": 8000
     }
   }
 }

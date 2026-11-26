@@ -5,4 +5,5 @@ export type EnemyBodyData = {
     maxHealth?: integer;
     numberOfBullets?: integer;
     shotRadius?: integer;
+    spawnRate?: integer;
 }
