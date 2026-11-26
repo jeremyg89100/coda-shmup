@@ -140,6 +140,8 @@ export default class EntityManager extends Plugins.ScenePlugin {
     }
 
     private spawnEnemy() {
+        const centerX = this.scene!.cameras.main.centerX;
+
         if (this._enemies.countActive(true) < 5) {
         const enemy = this._enemies.get() as Enemy | null;
         if (enemy) {
@@ -151,7 +153,7 @@ export default class EntityManager extends Plugins.ScenePlugin {
     if (this._specialEnemy.countActive(true) < 1) {
         const specialEnemy = this._specialEnemy.get() as Enemy | null;
         if (specialEnemy) {
-            specialEnemy.enable(Phaser.Math.Between(64, this.scene!.cameras.main.width - 64), 0);
+            specialEnemy.enable(centerX, 0);
             this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, specialEnemy);
         }
     }

@@ -15,24 +15,17 @@ export default class Enemy extends Entity {
     };
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
     private _shootTimer: Phaser.Time.TimerEvent;
+    private _isSpecialEnemy: boolean = false;
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group, shipData?: EnemyShipData): void {
         const enemyShipsData = this.scene.cache.json.get('specialEnemy') as EnemyShipsData | undefined;
         const data: EnemyShipData | undefined = shipData ?? enemyShipsData?.enemies;
 
         if (!data) {
-            console.warn('[Enemy] Missing shipData and no "specialEnemy" JSON found in cache.');
             return;
         }
 
-        const spritesTexture = this.scene.textures.get('sprites');
-        if (spritesTexture && spritesTexture.has(data.texture)) {
-            this.setTexture('sprites', data.texture);
-        } else if (this.scene.textures.exists(data.texture)) {
-            this.setTexture(data.texture);
-        } else {
-            console.warn(`[Enemy] Texture "${data.texture}" introuvable dans "sprites" ou en texture directe.`);
-        }
+        this._isSpecialEnemy = data.texture === 'merluche' || this.frame.name === 'merluche';
 
         this.angle = 90;
 
@@ -141,10 +134,13 @@ export default class Enemy extends Entity {
         if (this.y > this.scene.cameras.main.height + this.displayHeight) {
             this.disable();
         }
+        const effectiveDelta = this.isTinted ? deltaTime * 0.5 : deltaTime;
+        const movement = this.getComponent(Movement);
 
-        if (!this.isTinted)
-            this.getComponent(Movement)?.moveVertically(this, deltaTime);
-        else
-            this.getComponent(Movement)?.moveVertically(this, deltaTime * 0.5);
+        if (this._isSpecialEnemy) {
+            movement?.moveSinusoidal(this, effectiveDelta);
+        } else {
+            movement?.moveVertically(this, effectiveDelta);
+        }
     }
 }
