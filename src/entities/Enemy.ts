@@ -10,7 +10,7 @@ export default class Enemy extends Entity {
         width: 20,
         height: 20,
         color: 0x00e676,
-        speed: 512,
+        speed: 752,
         damage: 1,
     };
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
@@ -70,7 +70,7 @@ export default class Enemy extends Entity {
 
         this._shootTimer?.remove(false);
         this._shootTimerConfig = {
-            delay: Phaser.Math.Between(2000, 3000),
+            delay: Phaser.Math.Between(500, 1500),
             callback: this.shoot,
             callbackScope: this,
             loop: true,
