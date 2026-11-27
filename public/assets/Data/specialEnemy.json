@@ -1,6 +1,6 @@
 {
   "enemies": {
-    "movementSpeed": 0.3,
+    "movementSpeed": 0.45,
     "texture": "mlp",
     "body": {
       "radius": 52,
