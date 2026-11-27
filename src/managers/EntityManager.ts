@@ -122,6 +122,15 @@ export default class EntityManager extends Plugins.ScenePlugin {
     }
 
     public initGroupCollisions() {
+        this.scene!.registry.events.on(
+            'changedata-' + RegistryConstants.Keys.PLAYER_SCORE,
+            (_parent: unknown, value: number) => {
+                if (value > 0 && value % 10 === 0) {
+                    this._player?.getComponent(Health)?.heal(1);
+                }
+            }
+        );
+
         this.scene!.physics.add.overlap(this._playerBullets, this._enemies, (bullet, enemy) => {
             this.scene!.registry.inc(RegistryConstants.Keys.PLAYER_SCORE);
 
