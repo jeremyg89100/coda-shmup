@@ -1,11 +1,11 @@
 {
   "enemies": {
-    "movementSpeed": 0.1,
+    "movementSpeed": 0.3,
     "texture": "mlp",
     "body": {
-      "radius": 42,
-      "offsetX": -4,
-      "offsetY": 16,
+      "radius": 52,
+      "offsetX": 15,
+      "offsetY": 0,
       "maxHealth": 1
     }
   },

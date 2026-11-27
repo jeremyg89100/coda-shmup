@@ -33,7 +33,7 @@ export default class Player extends Entity {
     }
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group) {
-        this.addComponent(new Health(3, this));
+        this.addComponent(new Health(5, this));
         this.addComponent(new Movement());
         this.addComponent(new Weapon(bulletsGroup, this._bulletData));
 
@@ -88,7 +88,7 @@ export default class Player extends Entity {
 
         // Press space to shoot
         if (this._cursorKeys.space.isDown) {
-            if (timeSinceLaunch - this._lastShotTime > this._rateOfFire * 1000) {
+            if (timeSinceLaunch - this._lastShotTime > this._rateOfFire * 500) {
                 this.getComponent(Weapon)?.shoot(this);
                 this.scene.sound.play('sfx_laser1');
 
