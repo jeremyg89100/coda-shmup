@@ -77,10 +77,19 @@ export default class EntityManager extends Plugins.ScenePlugin {
             }
         });
 
-        // Spawn enemies indefinitely
+        // Spawn normal enemies every 1500 ms
         this.scene!.time.addEvent({
             delay: 1500,
-            callback: this.spawnEnemy,
+            callback: this.spawnNormalEnemy,
+            callbackScope: this,
+            loop: true
+        });
+
+        // Spawn specialEnemy using spawnRate from JSON (default: 10000 ms)
+        const specialEnemySpawnRate = shipsData?.specialEnemy?.spawnRate ?? 10000;
+        this.scene!.time.addEvent({
+            delay: specialEnemySpawnRate,
+            callback: this.spawnSpecialEnemy,
             callbackScope: this,
             loop: true
         });
@@ -88,6 +97,28 @@ export default class EntityManager extends Plugins.ScenePlugin {
         console.log("[EntityManager] Enemies initialized");
 
         return this._enemies;
+    }
+
+    private spawnNormalEnemy() {
+        if (this._enemies.countActive(true) < 5) {
+            const enemy = this._enemies.get() as Enemy | null;
+            if (enemy) {
+                enemy.enable(Phaser.Math.Between(64, this.scene!.cameras.main.width - 64), 0);
+                this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, enemy);
+            }
+        }
+    }
+
+    private spawnSpecialEnemy() {
+        const centerX = this.scene!.cameras.main.centerX;
+
+        if (this._specialEnemy.countActive(true) < 1) {
+            const specialEnemy = this._specialEnemy.get() as Enemy | null;
+            if (specialEnemy) {
+                specialEnemy.enable(centerX, 0);
+                this.game!.events.emit(GameConstants.Events.ENEMY_SPAWNED_EVENT, specialEnemy);
+            }
+        }
     }
 
     public initGroupCollisions() {

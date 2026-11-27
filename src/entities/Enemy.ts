@@ -7,15 +7,18 @@ import Weapon from "../components/Weapon.ts";
 
 export default class Enemy extends Entity {
     private readonly _bulletData: BulletData = {
-        width: 12,
-        height: 12,
-        color: 0xf25f5c,
+        width: 20,
+        height: 20,
+        color: 0x00e676,
         speed: 512,
         damage: 1,
     };
     private _shootTimerConfig: Phaser.Types.Time.TimerEventConfig;
     private _shootTimer: Phaser.Time.TimerEvent;
     private _isSpecialEnemy: boolean = false;
+
+    private _numberOfBullets: number = 1;
+    private _shotRadius: number = 0;
 
     public init(bulletsGroup: Phaser.Physics.Arcade.Group, shipData?: EnemyShipData): void {
         const enemyShipsData = this.scene.cache.json.get('specialEnemy') as EnemyShipsData | undefined;
@@ -26,6 +29,8 @@ export default class Enemy extends Entity {
         }
 
         this._isSpecialEnemy = data.texture === 'merluche' || this.frame.name === 'merluche';
+        this._numberOfBullets = data.body.numberOfBullets ?? 1;
+        this._shotRadius = data.body.shotRadius ?? 0;
 
         this.angle = 90;
 
@@ -111,21 +116,27 @@ export default class Enemy extends Entity {
     }
 
     private shoot() {
-    const fire = () => {
-        this.getComponent(Weapon)?.shoot(this);
-        this.scene.sound.play('sfx_laser2');
-    };
+        console.log("shoot");
+        const fire = () => {
+            const weapon = this.getComponent(Weapon);
+            if (this._isSpecialEnemy) {
+                weapon?.shootSpecialEnemy(this, this._numberOfBullets, this._shotRadius);
+            } else {
+                weapon?.shoot(this);
+            }
+            this.scene.sound.play('sfx_laser2');
+        };
 
-    if (this.scene.anims.exists('ufoShoot') && this.frame.name === 'ufoRed') {
-        this.play('ufoShoot');
-        this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-            this.setTexture('sprites', 'ufoRed');
+        if (this.scene.anims.exists('ufoShoot') && this.frame.name === 'ufoRed') {
+            this.play('ufoShoot');
+            this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+                this.setTexture('sprites', 'ufoRed');
+                fire();
+            });
+        } else {
             fire();
-        });
-    } else {
-        fire();
+        }
     }
-}
 
     preUpdate(timeSinceLaunch: number, deltaTime: number) {
         super.preUpdate(timeSinceLaunch, deltaTime)

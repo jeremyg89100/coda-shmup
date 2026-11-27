@@ -8,9 +8,9 @@ import Weapon from "../components/Weapon.ts";
 
 export default class Player extends Entity {
     private readonly _bulletData: BulletData = {
-        width: 12,
-        height: 4,
-        color: 0xffe066,
+        width: 24,
+        height: 6,
+        color: 0xffd600,
         speed: 1024,
         damage: 1
     };

@@ -1,7 +1,7 @@
 {
   "enemies": {
-    "movementSpeed": 0.2,
-    "texture": "ufoRed",
+    "movementSpeed": 0.1,
+    "texture": "mlp",
     "body": {
       "radius": 42,
       "offsetX": -4,
@@ -16,7 +16,10 @@
       "radius": 42,
       "offsetX": -4,
       "offsetY": 16,
-      "maxHealth": 3
+      "maxHealth": 2,
+      "numberOfBullets": 5,
+      "shotRadius": 90,
+      "spawnRate": 8000
     }
   }
 }
